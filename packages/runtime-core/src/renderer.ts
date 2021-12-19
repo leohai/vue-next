@@ -365,8 +365,8 @@ function baseCreateRenderer(
   // Note: functions inside this closure should use `const xxx = () => {}`
   // style in order to prevent being inlined by minifiers.
   const patch: PatchFn = (
-    n1,
-    n2,
+    n1, // 老得虚拟dom
+    n2, // 新的虚拟dom
     container,
     anchor = null,
     parentComponent = null,
@@ -390,7 +390,7 @@ function baseCreateRenderer(
       optimized = false
       n2.dynamicChildren = null
     }
-
+    //  获取新节点的类型
     const { type, ref, shapeFlag } = n2
     switch (type) {
       case Text:
@@ -406,6 +406,7 @@ function baseCreateRenderer(
           patchStaticNode(n1, n2, container, isSVG)
         }
         break
+      // 非单根节点
       case Fragment:
         processFragment(
           n1,
@@ -420,6 +421,7 @@ function baseCreateRenderer(
         )
         break
       default:
+        //  10 ｜ 100   & 110
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(
             n1,
@@ -433,6 +435,7 @@ function baseCreateRenderer(
             optimized
           )
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
+          // 初始化走这
           processComponent(
             n1,
             n2,
@@ -1177,6 +1180,7 @@ function baseCreateRenderer(
           optimized
         )
       } else {
+        // 初始化
         mountComponent(
           n2,
           container,
@@ -1205,6 +1209,7 @@ function baseCreateRenderer(
     // mounting
     const compatMountInstance =
       __COMPAT__ && initialVNode.isCompatRoot && initialVNode.component
+    // 创建组件实例
     const instance: ComponentInternalInstance =
       compatMountInstance ||
       (initialVNode.component = createComponentInstance(
@@ -1232,6 +1237,7 @@ function baseCreateRenderer(
       if (__DEV__) {
         startMeasure(instance, `init`)
       }
+      // 2: 组件安装: 类似于vue2中的_init()初始化
       setupComponent(instance)
       if (__DEV__) {
         endMeasure(instance, `init`)
@@ -1251,7 +1257,7 @@ function baseCreateRenderer(
       }
       return
     }
-
+    // 3.安装渲染函数的副作用
     setupRenderEffect(
       instance,
       initialVNode,
@@ -1375,6 +1381,7 @@ function baseCreateRenderer(
           if (__DEV__) {
             startMeasure(instance, `render`)
           }
+          // 首先获取当前组件的vnode
           const subTree = (instance.subTree = renderComponentRoot(instance))
           if (__DEV__) {
             endMeasure(instance, `render`)
@@ -1382,6 +1389,7 @@ function baseCreateRenderer(
           if (__DEV__) {
             startMeasure(instance, `patch`)
           }
+          // 初始化patch
           patch(
             null,
             subTree,
@@ -1751,6 +1759,8 @@ function baseCreateRenderer(
   }
 
   // can be all-keyed or mixed
+  // 类似updateChildren
+  // 最长递增子序列
   const patchKeyedChildren = (
     c1: VNode[],
     c2: VNodeArrayChildren,
@@ -1770,6 +1780,7 @@ function baseCreateRenderer(
     // 1. sync from start
     // (a b) c
     // (a b) d e
+    // 1.掐头
     while (i <= e1 && i <= e2) {
       const n1 = c1[i]
       const n2 = (c2[i] = optimized
@@ -1796,6 +1807,7 @@ function baseCreateRenderer(
     // 2. sync from end
     // a (b c)
     // d e (b c)
+    // 去尾
     while (i <= e1 && i <= e2) {
       const n1 = c1[e1]
       const n2 = (c2[e2] = optimized
@@ -1827,6 +1839,7 @@ function baseCreateRenderer(
     // (a b)
     // c (a b)
     // i = 0, e1 = -1, e2 = 0
+    // 3.创建
     if (i > e1) {
       if (i <= e2) {
         const nextPos = e2 + 1
@@ -1857,6 +1870,7 @@ function baseCreateRenderer(
     // a (b c)
     // (b c)
     // i = 0, e1 = 0, e2 = -1
+    // 4 删除
     else if (i > e2) {
       while (i <= e1) {
         unmount(c1[i], parentComponent, parentSuspense, true)
@@ -1868,6 +1882,7 @@ function baseCreateRenderer(
     // [i ... e1 + 1]: a b [c d e] f g
     // [i ... e2 + 1]: a b [e d c h] f g
     // i = 2, e1 = 4, e2 = 5
+    // 3.通用处理，拿着新的从老的里找，没找到创建，找到更新
     else {
       const s1 = i // prev starting index
       const s2 = i // next starting index
@@ -2300,6 +2315,9 @@ function baseCreateRenderer(
         unmount(container._vnode, null, null, true)
       }
     } else {
+      // zouzhe,类似vue2
+      // 参数1不存在则走初始化流程
+      // 参数1存在则更新流程
       patch(container._vnode || null, vnode, container, null, null, null, isSVG)
     }
     flushPostFlushCbs()
@@ -2328,8 +2346,8 @@ function baseCreateRenderer(
   }
 
   return {
-    render,
-    hydrate,
+    render, // 渲染方法 render(vnode, container)
+    hydrate, // 注水，用于服务端渲染
     createApp: createAppAPI(render, hydrate)
   }
 }

@@ -83,7 +83,7 @@ export class ReactiveEffect<T = any> {
         trackOpBit = 1 << ++effectTrackDepth
 
         if (effectTrackDepth <= maxMarkerBits) {
-          initDepMarkers(this)
+          initDepMarkers(this) // 每次重新收集依赖，每次重新执行effect 都会去值，那么会调用get方法，进行依赖收集
         } else {
           cleanupEffect(this)
         }
@@ -118,7 +118,8 @@ function cleanupEffect(effect: ReactiveEffect) {
   const { deps } = effect
   if (deps.length) {
     for (let i = 0; i < deps.length; i++) {
-      deps[i].delete(effect)
+      deps[i].delete(effect) // 重新收集 （时机在重新执行effect）
+      //  effects.deps = [name, age]  name = [effect] age = [effect]
     }
     deps.length = 0
   }

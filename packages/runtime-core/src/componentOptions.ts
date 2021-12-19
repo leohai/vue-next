@@ -651,6 +651,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
           `Plain object usage is no longer supported.`
       )
     }
+    // 获取data方法返回的对象数据
     const data = (dataOptions as any).call(publicThis, publicThis)
     if (__DEV__ && isPromise(data)) {
       warn(
@@ -662,6 +663,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
     if (!isObject(data)) {
       __DEV__ && warn(`data() should return an object.`)
     } else {
+      // 响应式处理
       instance.data = reactive(data)
       if (__DEV__) {
         for (const key in data) {

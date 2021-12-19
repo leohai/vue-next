@@ -105,7 +105,7 @@ function createGetter(isReadonly = false, shallow = false) {
     }
 
     const res = Reflect.get(target, key, receiver)
-
+    // 是内置symbol 或者原型链查找到的，直接返回
     if (isSymbol(key) ? builtInSymbols.has(key) : isNonTrackableKeys(key)) {
       return res
     }
@@ -147,7 +147,7 @@ function createSetter(shallow = false) {
   ): boolean {
     let oldValue = (target as any)[key]
     if (!shallow) {
-      value = toRaw(value)
+      value = toRaw(value) // 对象被深层代理了 reactive({r:1}) proxy.r = reactive({a:1})
       oldValue = toRaw(oldValue)
       if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
         oldValue.value = value

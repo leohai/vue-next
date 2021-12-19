@@ -187,7 +187,7 @@ export function createAppAPI<HostElement>(
     const installedPlugins = new Set()
 
     let isMounted = false
-
+    // 应用程序实例
     const app: App = (context.app = {
       _uid: uid++,
       _component: rootComponent as ConcreteComponent,
@@ -279,6 +279,7 @@ export function createAppAPI<HostElement>(
         isSVG?: boolean
       ): any {
         if (!isMounted) {
+          // 初始化的虚拟dom树
           const vnode = createVNode(
             rootComponent as ConcreteComponent,
             rootProps
@@ -297,6 +298,7 @@ export function createAppAPI<HostElement>(
           if (isHydrate && hydrate) {
             hydrate(vnode as VNode<Node, Element>, rootContainer as any)
           } else {
+            // 默认走这
             render(vnode, rootContainer, isSVG)
           }
           isMounted = true

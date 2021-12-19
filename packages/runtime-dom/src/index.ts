@@ -57,6 +57,7 @@ export const hydrate = ((...args) => {
 }) as RootHydrateFunction
 
 export const createApp = ((...args) => {
+  // 首先获取一个渲染器
   const app = ensureRenderer().createApp(...args)
 
   if (__DEV__) {

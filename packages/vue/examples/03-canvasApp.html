@@ -1,0 +1,85 @@
+<div id="app"></div>
+<script src="../dist/vue.global.js"></script>
+<script type="text/x-template" id="chart">
+    <bar-chart :data="chartData"></bar-chart>
+</script>
+<script>
+    const { createApp, createRenderer } = Vue
+    const renderer = createRenderer({
+        createElement: (tag, isSvg, is) => {
+            return { tag }
+        },
+        // 属性更新
+        patchProp(el, key, prevValue, nextValue) {
+            el[key] = nextValue
+        },
+        insert: (child, parnet, anchor) => {
+            // 重写insert逻辑， 因为在canvasAPP中不存在实际dom插入操作
+            // 这里面只要保存父子关系
+            child.parnet = parnet
+            if (!parnet.childs) {
+                parnet.childs = child
+            } else {
+                parnet.childs.push(child)
+            }
+            if (parnet.nodeType === 1) {
+                draw(child)
+            }
+        }
+
+    })
+    // el形如 {tag : 'bar-chart', data: {...}}
+    const draw = (el, noClear) => {
+        if (!noClear) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+        if (el.tag == 'bar-chart') {
+            const { data } = el;
+            const barWidth = canvas.width / 10,
+                gap = 20,
+                paddingLeft = (data.length * barWidth + (data.length - 1) * gap) / 2,
+                paddingBottom = 10;
+            // x轴
+            // 柱状图
+            data.forEach(({ title, count, color }, index) => {
+                const x = paddingLeft + index * (barWidth + gap)
+                const y = canvas.height - paddingBottom - count
+                ctx.fillStyle = color
+                ctx.fillRect(x, y, barWidth, count)
+            });
+
+
+        }
+    }
+    let ctx;
+    let canvas;
+    function createCanvasApp(App) {
+        const app = renderer.createApp(App)
+        // 额外创建一个画布
+        const mount = app.mount
+        app.mount = function (selector) {
+            canvas = document.createElement('canvas')
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+            document.querySelector(selector).appendChild(canvas)
+            ctx = canvas.getContext('2d')
+            mount(canvas)
+        }
+        return app
+    }
+    createCanvasApp(
+        {
+            template: '<bar-chart :data="chartData"></bar-chart>', // #chart
+            data() {
+                return {
+                    chartData: [
+                        { title: "青铜", count: 200, color: 'brown' },
+                        { title: "砖石", count: 300, color: 'skyblue' },
+                        { title: "星耀", count: 500, color: 'purple' },
+                        { title: "王者", count: 100, color: 'gold' }
+                    ]
+                }
+            }
+        }
+    ).mount('#app')
+</script>

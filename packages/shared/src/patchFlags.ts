@@ -61,8 +61,9 @@ export const enum PatchFlags {
 
   /**
    * Indicates a fragment whose children order doesn't change.
+   * 指明这是个fragment，该fragment子元素顺序是稳定的不会改变的
    */
-  STABLE_FRAGMENT = 1 << 6,
+  STABLE_FRAGMENT = 1 << 6, // 1000000
 
   /**
    * Indicates a fragment with keyed or partially keyed children

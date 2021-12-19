@@ -91,7 +91,7 @@ export function reactive(target: object) {
     return target
   }
   return createReactiveObject(
-    target,
+    target, // (arr, obj) (map set)
     false,
     mutableHandlers,
     mutableCollectionHandlers,
@@ -186,13 +186,13 @@ function createReactiveObject(
   // target is already a Proxy, return it.
   // exception: calling readonly() on a reactive object
   if (
-    target[ReactiveFlags.RAW] &&
+    target[ReactiveFlags.RAW] && // readonly(reactive(obj))
     !(isReadonly && target[ReactiveFlags.IS_REACTIVE])
   ) {
     return target
   }
   // target already has corresponding Proxy
-  const existingProxy = proxyMap.get(target)
+  const existingProxy = proxyMap.get(target) // reactive(reactive
   if (existingProxy) {
     return existingProxy
   }

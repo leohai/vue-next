@@ -9,6 +9,7 @@ if (!process.env.TARGET) {
 }
 
 const masterVersion = require('./package.json').version
+// packaeges/vue/
 const packagesDir = path.resolve(__dirname, 'packages')
 const packageDir = path.resolve(packagesDir, process.env.TARGET)
 const resolve = p => path.resolve(packageDir, p)

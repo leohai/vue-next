@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="../dist/vue.global.js"></script>
+
+<body>
+    <div id="app">
+        <p>{{counter}}</p>
+        <comp></comp>
+    </div>
+</body>
+<script>
+    const { createApp } = Vue
+    // 1.避免实例之间污染
+    // 2.摇树优化
+    // 3.语义上更好理解
+    // app.config.globalProperties.abc = "abc"
+    const app = createApp({
+        data() {
+            return {
+                counter: 1
+            }
+        },
+        // setup() {
+        //     const counter = ref(1)
+        //     return { counter }
+        // }
+    }).component('comp', { template: '<div>comp</div>' })
+        .mount('#app')
+</script>
+
+</html>
